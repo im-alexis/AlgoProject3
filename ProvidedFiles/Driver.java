@@ -3,30 +3,29 @@ package ProvidedFiles;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-
 /***
  * Usage:
  * Driver takes in 1 parameter: the input file
  */
 public class Driver {
-    
+
     public static String filename;
 
     private static int testProgram(Program3 program, String filename) {
 
         ImpactCalculator calculator = null;
 
-        try{
+        try {
             calculator = new ImpactCalculator(filename);
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             System.err.printf("Could not find file : %s\n", filename);
             usage();
         }
 
         program.initialize(calculator);
-	    int result = program.computeImpact();
-	    program.printTreatmentPlan();
-		
+        int result = program.computeImpact();
+        program.printTreatmentPlan();
+
         return result;
     }
 
@@ -41,7 +40,7 @@ public class Driver {
         if (args.length != 1) {
             usage();
         }
-        
+
         filename = args[0];
     }
 
