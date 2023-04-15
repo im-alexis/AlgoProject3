@@ -37,7 +37,7 @@ public class Program3 {
         }
 
         for (int i = 0; i < numMedicines; i++) {
-            int prev_value = 0;
+            int prev_value = -1;
             for (int j = 1; j < totalTime + 1; j++) {
                 int impact = calculator.calculateImpact(i, j);
                 if (prev_value == impact) {
@@ -70,7 +70,7 @@ public class Program3 {
 
         int totalTime = calculator.getTotalTime();
         int numMedicines = calculator.getNumMedicines();
-        int running_impact = -1;
+        int running_impact = 0;
 
         treatment_plan = new int[numMedicines];
         int[] opt = new int[totalTime + 1];
@@ -88,7 +88,8 @@ public class Program3 {
             int med_index = -1;
 
             for (int medicine = 0; medicine < numMedicines; medicine++) {
-                if (peak_med_hours[medicine] >= hour) { // if the medicine has not been maxed out
+                if (peak_med_hours[medicine] >= hour) { // if the medicine has not been maxed
+                    // out
                     int impact_change = calculator.calculateImpact(medicine, hour)
                             - calculator.calculateImpact(medicine, hour - 1);
                     if (impact_change > max_impact) {
@@ -102,8 +103,9 @@ public class Program3 {
             if (max_impact != 0) { // Only add the medicine if the impact imporves
                 treatment_plan[med_index]++;
                 opt[hour] = med_index;
-                running_impact = running_impact + max_impact;
+                // running_impact = running_impact + max_impact;
             }
+            running_impact = running_impact + max_impact;
 
         }
 
