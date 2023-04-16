@@ -26,34 +26,6 @@ public class Program3 {
         this.treatment_plan = new int[ic.getNumMedicines()];
     }
 
-    // Function to calculate the peak hour of effectiveness for the the medicines
-    private int[] findPeak() {
-        int totalTime = calculator.getTotalTime();
-        int numMedicines = calculator.getNumMedicines();
-        int[] peak_med_hours = new int[numMedicines];
-
-        for (int i = 0; i < numMedicines; i++) {
-            peak_med_hours[i] = -1;
-        }
-
-        for (int i = 0; i < numMedicines; i++) {
-            int prev_value = -1;
-            for (int j = 1; j < totalTime + 1; j++) {
-                int impact = calculator.calculateImpact(i, j);
-                if (prev_value == impact) {
-                    peak_med_hours[i] = j - 1; // If i need the index of the hour to be zero indexed then change to 2
-                    break;
-                }
-                prev_value = impact;
-            }
-            if (peak_med_hours[i] == -1) {
-                peak_med_hours[i] = totalTime;
-            }
-        }
-
-        return peak_med_hours;
-    }
-
     /*
      * This method computes and returns the total impact of the treatment plan. It
      * should
@@ -70,106 +42,31 @@ public class Program3 {
 
         int totalTime = calculator.getTotalTime();
         int numMedicines = calculator.getNumMedicines();
-        int running_impact = 0;
+        int[][] OPT = new int[numMedicines + 1][totalTime + 1]; // going to 1 index to account for 0 hours/meds 
 
-        int[][][] opt2 = new int[numMedicines][totalTime + 1][totalTime + 1];
-        treatment_plan = new int[numMedicines];
-        boolean[] used = new boolean[numMedicines];
-        int[] opt = new int[totalTime + 1];
-        // int[] peak_med_hours = findPeak();
-
-        for (int i = 0; i < numMedicines; i++) {
-            treatment_plan[i] = 0;
-            used[i] = false;
+        for (int i = 0; i <= numMedicines; i++) { //no hours
+            OPT[i][0] = 0;
         }
-        for (int i = 0; i < totalTime + 1; i++) {
-            opt[i] = -1;
+        for (int i = 0; i <= totalTime; i++) { // no meds
+            OPT[0][i] = 0;
         }
-        // int highest_first_dose = -1;
-        // int hfd_index = -1;
-        // for (int med_first_dose = 0; med_first_dose < numMedicines; med_first_dose++)
-        // {
-        // if (!used[med_first_dose]) {
-        // int first_does_impact = calculator.calculateImpact(med_first_dose, 1);
-        // if (highest_first_dose < first_does_impact) {
-        // highest_first_dose = first_does_impact;
-        // hfd_index = med_first_dose;
-        // }
-        // }
-        // }
 
-        int prev_med = -1;
-        int prev_med_length = 0;
+        //Building the table
 
-        for (int hour = 1; hour < totalTime + 1; hour++) {
+        for (int medicine = 1; medicine <= numMedicines; medicine++) {
+            for (int hour = 1; hour <= totalTime; hour++) {
+                //Locking for that m value where it becomes greater than the previous value
+                for (int dosage_length = 0; dosage_length <= hour; dosage_length++) {
+                    int prev_max_impact = OPT[medicine][hour];
+                    int impact = calculator.calculateImpact(medicine - 1, dosage_length);
+                    int new_potential = OPT[medicine - 1][hour - dosage_length] + impact; //Looking for if swtiching medicines makes impact higher
+                    OPT[medicine][hour] = Math.max(prev_max_impact, new_potential); // which ever gives the higher impact value will be the entry
 
-            int max_impact = 0;
-            int highest_first_dose_impact = -1;
-            int hfd_index = -1;
-
-            // for (int medicine = 0; medicine < numMedicines; medicine++) {
-            // if (peak_med_hours[medicine] >= hour) { // if the medicine has not been maxed
-            // // out
-            // int impact_change = calculator.calculateImpact(medicine, hour)
-            // - calculator.calculateImpact(medicine, hour - 1);
-
-            // if (impact_change > max_impact) {
-            // max_impact = impact_change;
-            // med_index = medicine;
-            // }
-
-            // }
-
-            // }
-
-            for (int med_first_dose = 0; med_first_dose < numMedicines; med_first_dose++) {
-                if (!used[med_first_dose]) {
-                    int first_does_impact = calculator.calculateImpact(med_first_dose, 1);
-                    if (highest_first_dose_impact < first_does_impact) {
-                        highest_first_dose_impact = first_does_impact;
-                        hfd_index = med_first_dose;
-                    }
                 }
             }
-
-            // initial case choosing to use the highest impact
-            if (prev_med == -1) {
-                if (!(hfd_index == -1)) {
-                    treatment_plan[hfd_index]++;
-                    opt[hour] = hfd_index;
-                    used[hfd_index] = true;
-                    max_impact = highest_first_dose_impact;
-                    prev_med = hfd_index;
-                    prev_med_length = 1;
-                }
-
-            } else {
-                // calculate the impact gain of taking another dose of the previous medicine
-                int cont_prev_med_impact = calculator.calculateImpact(prev_med, prev_med_length + 1)
-                        - calculator.calculateImpact(prev_med, prev_med_length);
-                if (cont_prev_med_impact > highest_first_dose_impact) {
-                    prev_med_length++;
-                    treatment_plan[prev_med]++;
-                    opt[hour] = prev_med;
-                    max_impact = cont_prev_med_impact;
-
-                } else {
-                    treatment_plan[hfd_index]++;
-                    opt[hour] = hfd_index;
-                    used[hfd_index] = true;
-                    max_impact = highest_first_dose_impact;
-                    prev_med = hfd_index;
-                    prev_med_length = 1;
-                }
-            }
-
-            running_impact = running_impact + max_impact;
-
         }
 
-        // Put your code here
-
-        return running_impact;
+        return OPT[numMedicines][totalTime];
     }
 
     /*
