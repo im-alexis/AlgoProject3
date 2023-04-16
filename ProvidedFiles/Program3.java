@@ -55,7 +55,7 @@ public class Program3 {
 
         for (int medicine = 1; medicine <= numMedicines; medicine++) {
             for (int hour = 1; hour <= totalTime; hour++) {
-                //Locking for that m value where it becomes greater than the previous value
+                //Looking for that m value where it becomes greater than the previous value
                 for (int dosage_length = 0; dosage_length <= hour; dosage_length++) {
                     int prev_max_impact = OPT[medicine][hour];
                     int impact = calculator.calculateImpact(medicine - 1, dosage_length);
@@ -64,6 +64,25 @@ public class Program3 {
 
                 }
             }
+        }
+        //Back tracking to find the treatment_plan values
+
+        int med = numMedicines; //counter for medicine
+        int hours = totalTime; // the value found at the table
+
+        while (med > 0 && hours > 0) { //keep going until all medicines have been searched and no more hours are there
+            int looked_for_impact = OPT[med][hours];
+            for (int doses = hours; doses >= 0; doses--) { // loop through potential doses
+                int cal_med_imapct = calculator.calculateImpact(med - 1, doses);
+                int med_dose_impact = OPT[med - 1][hours - doses] + cal_med_imapct;
+
+                if (looked_for_impact == med_dose_impact) { // found a dosage that matches
+                    treatment_plan[med - 1] = doses;
+                    hours = hours - doses;
+                    break; //done with this iteration
+                }
+            }
+            med--; // move to the next medicine
         }
 
         return OPT[numMedicines][totalTime];

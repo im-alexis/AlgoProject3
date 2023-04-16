@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "ProvidedFiles.Driver",
             "projectName": "Project3_2d9810ef",
-            "args": "/Users/alexistorres/Documents/Code/ECE360C/Project3/ProvidedFiles/small_inputs/6.in"
+            "args": "/Users/alexistorres/Documents/Code/ECE360C/Project3/ProvidedFiles/large_inputs/512.in"
         }
     ]
 }
